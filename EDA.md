@@ -1,5 +1,5 @@
 ---
-title: Number of murders with respect to foreign portion of population
+title: EDA
 notebook: EDA.ipynb
 nav_include: 2
 ---
