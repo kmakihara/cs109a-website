@@ -1,5 +1,5 @@
 theme: jekyll-theme-primer
-title: CS 109 Final Project: Crime
+title: CS 109 Final Project
 description: Regression Models to Predict Murder Rates in MSA's
 baseurl:
 markdown: kramdown
