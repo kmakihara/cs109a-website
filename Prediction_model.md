@@ -1,5 +1,5 @@
 ---
-title: backwards selection with atf data
+title: Models
 notebook: Prediction_model.ipynb
 nav_include: 3
 ---
