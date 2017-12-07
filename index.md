@@ -1,5 +1,5 @@
 ---
-title: The Case of the Italian Olives
+title: CS 109a Final Project: Crime
 ---
 
 This is the home page
