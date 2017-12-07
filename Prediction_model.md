@@ -1,13 +1,3 @@
----
-title: Models
-notebook: Prediction_model.ipynb
-nav_include: 3
----
-
-## Contents
-{:.no_toc}
-*  
-{: toc}
 
 
 
@@ -37,8 +27,7 @@ from os.path import isfile, join
 ```
 
 
-    /Users/kazuma/anaconda/envs/py36/lib/python3.6/site-packages/statsmodels/compat/pandas.py:56: FutureWarning: The pandas.core.datetools module is deprecated and will be removed in a future version. Please use the pandas.tseries module instead.
-      from pandas.core import datetools
+
 
 
 ## 3 Basic Prediction Model
@@ -48,6 +37,7 @@ from os.path import isfile, join
 
 
 ```python
+# Census data path
 census_data_path = 'Crime/data/census/'
 ```
 
@@ -76,6 +66,7 @@ census_filepaths = [f for f in census_folder_fps if f[3:] == 'census.csv']
 
 
 ```python
+# Function that strips dashes, helper for merge_df_msa
 def strip_dashes(x):
     return ' '.join(' '.join(x.split('-')).split())
 ```
@@ -84,6 +75,7 @@ def strip_dashes(x):
 
 
 ```python
+# Function to merge FBI data and census data
 def merge_df_msa(fbi_df, census_df):
     census_mask = census_df['Geography'].isnull()
     fbi_mask = fbi_df['Metropolitan_Statistical_Area'].isnull()
@@ -106,6 +98,7 @@ def merge_df_msa(fbi_df, census_df):
 
 
 ```python
+# Load all dataframes into a dict
 df_dict = dict()
 for i in range(0, 11):
     df_fbi = pd.read_csv(join('csvs/', csv_filepaths[i]))
@@ -132,16 +125,13 @@ for i in range(0, 11):
 ```
 
 
-    /Users/kazuma/anaconda/envs/py36/lib/python3.6/site-packages/ipykernel/__main__.py:14: SettingWithCopyWarning:
-    A value is trying to be set on a copy of a slice from a DataFrame.
-    Try using .loc[row_indexer,col_indexer] = value instead
 
-    See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
 
 
 
 
 ```python
+# Combine all dataframes into 1 big dataframe
 frames = []
 for k, v in df_dict.items():
 
@@ -188,26 +178,13 @@ df_concat = pd.concat(frames)
 ```
 
 
-    /Users/kazuma/anaconda/envs/py36/lib/python3.6/site-packages/ipykernel/__main__.py:40: SettingWithCopyWarning:
-    A value is trying to be set on a copy of a slice from a DataFrame.
-    Try using .loc[row_indexer,col_indexer] = value instead
 
-    See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
-    /Users/kazuma/anaconda/envs/py36/lib/python3.6/site-packages/ipykernel/__main__.py:41: SettingWithCopyWarning:
-    A value is trying to be set on a copy of a slice from a DataFrame.
-    Try using .loc[row_indexer,col_indexer] = value instead
-
-    See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
-    /Users/kazuma/anaconda/envs/py36/lib/python3.6/site-packages/ipykernel/__main__.py:42: SettingWithCopyWarning:
-    A value is trying to be set on a copy of a slice from a DataFrame.
-    Try using .loc[row_indexer,col_indexer] = value instead
-
-    See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
 
 
 
 
 ```python
+# Split data into training and test sets
 y = df_concat['murder_per_100000']
 X = df_concat.drop(['murder_per_100000', 'murder_count'], axis=1)
 X = X.apply(pd.to_numeric, errors='coerce')
@@ -229,6 +206,7 @@ X_tr, X_val, y_tr, y_val = train_test_split(X_train, y_train, test_size=0.2, ran
 
 
 ```python
+# Function to train and validate on given columns
 def train_and_validate(X_tr, X_val, y_tr, y_val, cols, title, add_const=True, poly=False, include_knn=True):
     X_col_tr = X_tr[cols].apply(pd.to_numeric, errors='coerce').values
     X_col_val = X_val[cols].apply(pd.to_numeric, errors='coerce').values
@@ -321,6 +299,7 @@ basic_models = train_and_validate(X_tr, X_val, y_tr, y_val, basic_cols, "Basic",
 ```
 
 
+
     Training R^2 for Basic Linear Regression: 0.10336462166830496
     Validation R^2 for Basic Linear Regression: 0.0905740112706801
 
@@ -332,6 +311,7 @@ basic_models = train_and_validate(X_tr, X_val, y_tr, y_val, basic_cols, "Basic",
 
     Training Score for KNN (k=13) Model: 0.384829110871148
     Validation Score for KNN (k=13) Model: 0.02369172929875007
+
 
 
 
@@ -350,6 +330,7 @@ comp_income_models = train_and_validate(X_tr, X_val, y_tr, y_val, income_cols, "
 ```
 
 
+
     Training R^2 for Income Linear Regression: 0.14258477634600875
     Validation R^2 for Income Linear Regression: 0.1448900418121657
 
@@ -361,6 +342,7 @@ comp_income_models = train_and_validate(X_tr, X_val, y_tr, y_val, income_cols, "
 
     Training Score for KNN (k=10) Model: 0.39124066387943257
     Validation Score for KNN (k=10) Model: 0.1320391142119982
+
 
 
 
@@ -378,6 +360,7 @@ all_col_models = train_and_validate(X_tr, X_val, y_tr, y_val, X_tr.columns, "All
 ```
 
 
+
     Training R^2 for All Columns Linear Regression: 0.4462319942491597
     Validation R^2 for All Columns Linear Regression: 0.4108502357189554
 
@@ -389,6 +372,7 @@ all_col_models = train_and_validate(X_tr, X_val, y_tr, y_val, X_tr.columns, "All
 
     Training Score for KNN (k=18) Model: 0.5069220726159709
     Validation Score for KNN (k=18) Model: 0.44440789682622034
+
 
 
 
@@ -407,9 +391,11 @@ X_all_val = X_val.apply(pd.to_numeric, errors='coerce')
 
 imputer = Imputer(strategy='mean')
 
+# Fill nan values with means
 X_const_train = imputer.fit_transform(X_all_train)
 X_const_val = imputer.fit_transform(X_all_val)
 
+# Scale everything and add constant
 scaler = MinMaxScaler()
 X_const_train = sm.add_constant(scaler.fit_transform(X_const_train))
 X_const_val = sm.add_constant(scaler.fit_transform(X_const_val))
@@ -425,8 +411,10 @@ print('Validation R^2 =', r2_score(y_val, y_hat_val))
 ```
 
 
+
     Train R^2 = 0.446231994249
     Validation R^2 = 0.410850235719
+
 
 
 
@@ -565,7 +553,9 @@ print("Significant predictors at alpha = 0.05:", list(np.array(xlabs)[np.array(r
 ```
 
 
+
     Significant predictors at alpha = 0.05: ['const', 'black', 'foreign', 'highschool', 'median_age', 'population', 'uneducated', 'white'] with p-values of: [0.0034255754667554413, 1.9406727072854948e-14, 0.00030586819343893327, 3.4184670079430795e-05, 0.011409139649156946, 0.036380755382960761, 0.00040328399497637418, 1.0271980794482728e-42]
+
 
 
 
@@ -584,6 +574,7 @@ OLS_sig_col_models = train_and_validate(X_tr, X_val, y_tr, y_val, most_significa
 ```
 
 
+
     Training R^2 for Most Significant OLS Predictors Linear Regression: 0.4403589258248584
     Validation R^2 for Most Significant OLS Predictors Linear Regression: 0.40655554960022205
 
@@ -598,6 +589,7 @@ OLS_sig_col_models = train_and_validate(X_tr, X_val, y_tr, y_val, most_significa
 
 
 
+
 ![png](Prediction_model_files/Prediction_model_29_1.png)
 
 
@@ -606,6 +598,7 @@ OLS_sig_col_models = train_and_validate(X_tr, X_val, y_tr, y_val, most_significa
 
 
 ```python
+# Function to help with subset selection, supports forward and backwards subset selection
 def step_forwards_backwards(df, y_vars, direction='forward'):
     assert direction in ['forward', 'backward']
     y = y_vars.reshape(-1,1)
@@ -667,12 +660,13 @@ def step_forwards_backwards(df, y_vars, direction='forward'):
 
 
 ```python
+# forwards selection
 predictors_forward = step_forwards_backwards(X_all_train, y_tr, direction='forward')
 predictors_forward
 ```
 
 
-    /Users/kazuma/anaconda/envs/py36/lib/python3.6/site-packages/ipykernel/__main__.py:4: FutureWarning: reshape is deprecated and will raise in a subsequent release. Please use .values.reshape(...) instead
+
 
 
 
@@ -685,12 +679,13 @@ predictors_forward
 
 
 ```python
+# backwards selection
 predictors_backward = step_forwards_backwards(X_all_train, y_tr, direction='backward')
 predictors_backward
 ```
 
 
-    /Users/kazuma/anaconda/envs/py36/lib/python3.6/site-packages/ipykernel/__main__.py:4: FutureWarning: reshape is deprecated and will raise in a subsequent release. Please use .values.reshape(...) instead
+
 
 
 
@@ -705,8 +700,10 @@ predictors_backward
 
 
 ```python
+# Forward Selection
 fwd_models = train_and_validate(X_tr, X_val, y_tr, y_val, predictors_forward, "Forward BIC Selection", add_const=True, poly=False)
 ```
+
 
 
     Training R^2 for Forward BIC Selection Linear Regression: 0.4395767505680862
@@ -723,14 +720,17 @@ fwd_models = train_and_validate(X_tr, X_val, y_tr, y_val, predictors_forward, "F
 
 
 
+
 ![png](Prediction_model_files/Prediction_model_35_1.png)
 
 
 
 
 ```python
+# Backwards Selection
 back_models = train_and_validate(X_tr, X_val, y_tr, y_val, predictors_backward, "Backward BIC Selection", add_const=True, poly=False)
 ```
+
 
 
     Training R^2 for Backward BIC Selection Linear Regression: 0.4395767505680862
@@ -747,15 +747,18 @@ back_models = train_and_validate(X_tr, X_val, y_tr, y_val, predictors_backward, 
 
 
 
+
 ![png](Prediction_model_files/Prediction_model_36_1.png)
 
 
 
 
 ```python
+# Union of forward and backward selected subsets
 union = list(set(predictors_forward).union(set(predictors_backward)))
 union_models = train_and_validate(X_tr, X_val, y_tr, y_val, union, "Union of BIC Selected Columns", add_const=True, poly=False)
 ```
+
 
 
     Training R^2 for Union of BIC Selected Columns Linear Regression: 0.4395767505680862
@@ -772,15 +775,18 @@ union_models = train_and_validate(X_tr, X_val, y_tr, y_val, union, "Union of BIC
 
 
 
+
 ![png](Prediction_model_files/Prediction_model_37_1.png)
 
 
 
 
 ```python
+# Intersection of forward and backward selected subsets
 intersection = list(set(predictors_forward).intersection(set(predictors_backward)))
 inter_models = train_and_validate(X_tr, X_val, y_tr, y_val, intersection, "Intersection of BIC Selected Columns", add_const=True, poly=False)
 ```
+
 
 
     Training R^2 for Intersection of BIC Selected Columns Linear Regression: 0.4395767505680862
@@ -797,6 +803,7 @@ inter_models = train_and_validate(X_tr, X_val, y_tr, y_val, intersection, "Inter
 
 
 
+
 ![png](Prediction_model_files/Prediction_model_38_1.png)
 
 
@@ -805,6 +812,7 @@ inter_models = train_and_validate(X_tr, X_val, y_tr, y_val, intersection, "Inter
 
 
 ```python
+# Model trained on the union of forward and backward subsets with polynomial and interaction variables
 union = list(set(predictors_forward).union(set(predictors_backward)))
 union_poly_models = train_and_validate(X_tr, X_val, y_tr, y_val, union,
                                        "Union of BIC Selected Columns with Polynomial Variables",
@@ -812,13 +820,15 @@ union_poly_models = train_and_validate(X_tr, X_val, y_tr, y_val, union,
 ```
 
 
+
     Training R^2 for Union of BIC Selected Columns with Polynomial Variables Linear Regression: 0.5925936931515721
     Validation R^2 for Union of BIC Selected Columns with Polynomial Variables Linear Regression: -2.67272217648836
 
 
 
-    /Users/kazuma/anaconda/envs/py36/lib/python3.6/site-packages/sklearn/linear_model/coordinate_descent.py:484: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations. Fitting data with very small alpha may cause precision problems.
-      ConvergenceWarning)
+
+
+
 
 
     Training R^2 for Union of BIC Selected Columns with Polynomial Variables Lasso Regression: 0.48592701270872163
@@ -829,13 +839,14 @@ union_poly_models = train_and_validate(X_tr, X_val, y_tr, y_val, union,
 
 
 
-    /Users/kazuma/anaconda/envs/py36/lib/python3.6/site-packages/sklearn/linear_model/coordinate_descent.py:484: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations. Fitting data with very small alpha may cause precision problems.
-      ConvergenceWarning)
+
+
 
 
 
 
 ```python
+# Model trained on the intersection of forward and backward subsets with polynomial and interaction variables
 intersection = list(set(predictors_forward).intersection(set(predictors_backward)))
 inter_poly_models = train_and_validate(X_tr, X_val, y_tr, y_val, intersection,
                                        "Intersection of BIC Selected Columns with Polynomial Variables",
@@ -843,8 +854,8 @@ inter_poly_models = train_and_validate(X_tr, X_val, y_tr, y_val, intersection,
 ```
 
 
-    /Users/kazuma/anaconda/envs/py36/lib/python3.6/site-packages/sklearn/linear_model/coordinate_descent.py:484: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations. Fitting data with very small alpha may cause precision problems.
-      ConvergenceWarning)
+
+
 
 
     Training R^2 for Intersection of BIC Selected Columns with Polynomial Variables Linear Regression: 0.5925936931515721
@@ -858,8 +869,8 @@ inter_poly_models = train_and_validate(X_tr, X_val, y_tr, y_val, intersection,
 
 
 
-    /Users/kazuma/anaconda/envs/py36/lib/python3.6/site-packages/sklearn/linear_model/coordinate_descent.py:484: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations. Fitting data with very small alpha may cause precision problems.
-      ConvergenceWarning)
+
+
 
 
 ## 4 Model Trained with ATF Data
@@ -944,11 +955,7 @@ for i in range(0, 11):
 ```
 
 
-    /Users/kazuma/anaconda/envs/py36/lib/python3.6/site-packages/ipykernel/__main__.py:14: SettingWithCopyWarning:
-    A value is trying to be set on a copy of a slice from a DataFrame.
-    Try using .loc[row_indexer,col_indexer] = value instead
 
-    See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
 
 
 
@@ -988,27 +995,7 @@ df_concat = pd.concat(frames)
 ```
 
 
-    /Users/kazuma/anaconda/envs/py36/lib/python3.6/site-packages/ipykernel/__main__.py:26: SettingWithCopyWarning:
-    A value is trying to be set on a copy of a slice from a DataFrame.
-    Try using .loc[row_indexer,col_indexer] = value instead
 
-    See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
-    /Users/kazuma/anaconda/envs/py36/lib/python3.6/site-packages/ipykernel/__main__.py:27: SettingWithCopyWarning:
-    A value is trying to be set on a copy of a slice from a DataFrame.
-    Try using .loc[row_indexer,col_indexer] = value instead
-
-    See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
-    /Users/kazuma/anaconda/envs/py36/lib/python3.6/site-packages/ipykernel/__main__.py:28: SettingWithCopyWarning:
-    A value is trying to be set on a copy of a slice from a DataFrame.
-    Try using .loc[row_indexer,col_indexer] = value instead
-
-    See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
-    /Users/kazuma/anaconda/envs/py36/lib/python3.6/site-packages/pandas/core/frame.py:2450: SettingWithCopyWarning:
-    A value is trying to be set on a copy of a slice from a DataFrame.
-    Try using .loc[row_indexer,col_indexer] = value instead
-
-    See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
-      self[k1] = value[k2]
 
 
 ### 4.2 OLS Model to determine statistical significance of additional ATF columns
@@ -1033,10 +1020,12 @@ X_tr, X_val, y_tr, y_val = train_test_split(X_atf_train, y_atf_train, test_size=
 
 
 ```python
+# Impute Nan values
 imputer = Imputer(strategy='mean')
 X_all_train = imputer.fit_transform(X_tr)
 X_all_val = imputer.fit_transform(X_val)
 
+# Scale everything and add constant
 scaler = MinMaxScaler()
 X_const_train = sm.add_constant(scaler.fit_transform(X_all_train))
 X_const_val = sm.add_constant(scaler.fit_transform(X_all_val))
@@ -1052,8 +1041,10 @@ print('Validation R^2 =', r2_score(y_val, y_hat_val))
 ```
 
 
+
     Train R^2 = 0.447551488088
     Validation R^2 = 0.409375635927
+
 
 
 
@@ -1201,6 +1192,7 @@ atf_all_model = train_and_validate(X_tr, X_val, y_tr, y_val, X.columns,
 ```
 
 
+
     Training R^2 for All Columns Including ATF Linear Regression: 0.4462319942491597
     Validation R^2 for All Columns Including ATF Linear Regression: 0.4108502357189554
 
@@ -1215,6 +1207,7 @@ atf_all_model = train_and_validate(X_tr, X_val, y_tr, y_val, X.columns,
 
 
 
+
 ![png](Prediction_model_files/Prediction_model_55_1.png)
 
 
@@ -1223,6 +1216,7 @@ atf_all_model = train_and_validate(X_tr, X_val, y_tr, y_val, X.columns,
 
 
 ```python
+# Most significant predictors
 most_significant_atf = np.array(xlabs)[np.array(result.pvalues < 0.05)][1:]
 most_significant_atf
 ```
@@ -1246,6 +1240,7 @@ atf_most_significant = train_and_validate(X_tr, X_val, y_tr, y_val, most_signifi
 ```
 
 
+
     Training R^2 for Most Significant Columns as Determined by OLS Including ATF Linear Regression: 0.4416844727031795
     Validation R^2 for Most Significant Columns as Determined by OLS Including ATF Linear Regression: 0.4055867039068164
 
@@ -1257,6 +1252,7 @@ atf_most_significant = train_and_validate(X_tr, X_val, y_tr, y_val, most_signifi
 
     Training Score for KNN (k=20) Model: 0.5339733103141981
     Validation Score for KNN (k=20) Model: 0.44500450313796264
+
 
 
 
@@ -1273,15 +1269,15 @@ atf_most_sig_poly_model = train_and_validate(X_tr, X_val, y_tr, y_val, most_sign
 ```
 
 
+
     Training R^2 for All Columns Including ATF with Polynomial Predictors Linear Regression: 0.7320519103314165
     Validation R^2 for All Columns Including ATF with Polynomial Predictors Linear Regression: -304.9367042667425
 
 
 
-    /Users/kazuma/anaconda/envs/py36/lib/python3.6/site-packages/sklearn/linear_model/coordinate_descent.py:484: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations. Fitting data with very small alpha may cause precision problems.
-      ConvergenceWarning)
-    /Users/kazuma/anaconda/envs/py36/lib/python3.6/site-packages/sklearn/linear_model/coordinate_descent.py:484: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations. Fitting data with very small alpha may cause precision problems.
-      ConvergenceWarning)
+
+
+
 
 
     Training R^2 for All Columns Including ATF with Polynomial Predictors Lasso Regression: 0.49935261726706975
@@ -1295,6 +1291,7 @@ atf_most_sig_poly_model = train_and_validate(X_tr, X_val, y_tr, y_val, most_sign
 
 
 
+
 ![png](Prediction_model_files/Prediction_model_60_3.png)
 
 
@@ -1303,12 +1300,13 @@ atf_most_sig_poly_model = train_and_validate(X_tr, X_val, y_tr, y_val, most_sign
 
 
 ```python
+# forwards selection with atf data
 predictors_forward = step_forwards_backwards(X_tr, y_tr, direction='forward')
 predictors_forward
 ```
 
 
-    /Users/kazuma/anaconda/envs/py36/lib/python3.6/site-packages/ipykernel/__main__.py:4: FutureWarning: reshape is deprecated and will raise in a subsequent release. Please use .values.reshape(...) instead
+
 
 
 
@@ -1321,12 +1319,13 @@ predictors_forward
 
 
 ```python
+# backwards selection with atf data
 predictors_backward = step_forwards_backwards(X_tr, y_tr, direction='backward')
 predictors_backward
 ```
 
 
-    /Users/kazuma/anaconda/envs/py36/lib/python3.6/site-packages/ipykernel/__main__.py:4: FutureWarning: reshape is deprecated and will raise in a subsequent release. Please use .values.reshape(...) instead
+
 
 
 
@@ -1370,7 +1369,9 @@ print("R^2 on the test set: {}".format(final_lasso_model.score(X_lasso_atf_final
 ```
 
 
+
     R^2 on the test set: 0.47946491031795335
+
 
 
 ### 5.2 KNN Regressor with forwards and backwards selected predictors
@@ -1399,7 +1400,9 @@ print("R^2 on the test set: {}".format(final_knn_model.score(X_knn_atf_final, y_
 ```
 
 
+
     R^2 on the test set: 0.512266327944152
+
 
 
 

@@ -34,7 +34,10 @@
 {% endblock execute_result %}
 
 {% block stream %}
+{% if output.name == 'stderr' %}
+{% else %}
 {{ output.text | indent }}
+{% endif %}
 {% endblock stream %}
 
 {% block data_svg %}
