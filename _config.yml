@@ -1,0 +1,9 @@
+theme: jekyll-theme-primer
+title: CS 109 Final Project: Crime
+description: Regression Models to Predict Murder Rates in MSA's
+baseurl:
+markdown: kramdown
+kramdown:
+    math_engine: mathjax
+    input: GFM
+    syntax_highlighter: rouge
